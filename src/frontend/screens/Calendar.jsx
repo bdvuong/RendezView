@@ -1,22 +1,27 @@
 import React, { useState } from "react";
-import Calendar from "react-calendar";
 import { Calendar as BigCalendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
-import "react-calendar/dist/Calendar.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "../css/calendar.css";
 
 const localizer = momentLocalizer(moment);
 
 export default function Sample() {
-  const [value, setValue] = useState([new Date(), new Date()]);
+  const [dateRange, setDateRange] = useState(null);
   const [events, setEvents] = useState([]);
+  const [currentView, setCurrentView] = useState("week");
+  const [currentDate, setCurrentDate] = useState(new Date());
 
-  const handleDateChange = (selectedDates) => {
-    setValue(selectedDates);
+  const handleDateSelect = ({ start, end }) => {
+    setDateRange({ start, end });
+    // Reset events when changing the date range
+    setEvents([]);
+    // Set the date and view for the time picker calendar
+    setCurrentDate(start);
+    setCurrentView("week");
   };
 
-  const handleSelect = ({ start, end }) => {
+  const handleTimeSelect = ({ start, end }) => {
     const newEvent = {
       title: "Available",
       start,
@@ -32,26 +37,40 @@ export default function Sample() {
       </header>
       <div className="Calendar__container">
         <main className="Calendar__container__content">
-          <Calendar
-            selectRange
-            onChange={handleDateChange}
-            value={value}
-          />
-          <div>
-            <p>Selected Start Date: {value[0].toLocaleDateString()}</p>
-            <p>Selected End Date: {value[1].toLocaleDateString()}</p>
+          {/* Date Range Picker */}
+          <div style={{ height: "500px", margin: "20px 0" }}>
+            <BigCalendar
+              localizer={localizer}
+              events={[]}
+              startAccessor="start"
+              endAccessor="end"
+              defaultView="month"
+              selectable={true}
+              onSelectSlot={handleDateSelect}
+              style={{ height: "100%" }}
+            />
           </div>
-          {value && (
+          {dateRange && (
+            <div>
+              <p>Selected Start Date: {dateRange.start.toLocaleDateString()}</p>
+              <p>Selected End Date: {dateRange.end.toLocaleDateString()}</p>
+            </div>
+          )}
+          {/* Time Slot Picker */}
+          {dateRange && (
             <div style={{ height: "500px", marginTop: "20px" }}>
               <BigCalendar
                 localizer={localizer}
                 events={events}
                 startAccessor="start"
                 endAccessor="end"
-                defaultDate={value[0]}
-                defaultView="week"
+                date={currentDate}
+                view={currentView}
+                onView={setCurrentView}
+                onNavigate={setCurrentDate}
+                views={['week', 'day']}
                 selectable={true}
-                onSelectSlot={handleSelect}
+                onSelectSlot={handleTimeSelect}
                 style={{ height: "100%" }}
                 min={new Date(2022, 0, 1, 8, 0)} // 8.00 AM
                 max={new Date(2022, 0, 1, 20, 0)} // 8.00 PM
