@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar as BigCalendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -11,12 +11,32 @@ export default function Sample() {
   const [events, setEvents] = useState([]);
   const [currentView, setCurrentView] = useState("week");
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [datePickerEvents, setDatePickerEvents] = useState([]);
+
+  useEffect(() => {
+    if (dateRange) {
+      const start = moment(dateRange.start);
+      const end = moment(dateRange.end).subtract(1, 'day'); // Subtracting one day here
+      const days = [];
+  
+      while (start.isSameOrBefore(end)) {
+        days.push({
+          title: "",
+          allDay: true,
+          start: new Date(start),
+          end: new Date(start),
+          isDatePickerEvent: true,  // Identify these events easily
+        });
+        start.add(1, "day");
+      }
+      setDatePickerEvents(days);
+    }
+  }, [dateRange]);
+  
 
   const handleDateSelect = ({ start, end }) => {
     setDateRange({ start, end });
-    // Reset events when changing the date range
     setEvents([]);
-    // Set the date and view for the time picker calendar
     setCurrentDate(start);
     setCurrentView("week");
   };
@@ -30,6 +50,17 @@ export default function Sample() {
     setEvents((prevEvents) => [...prevEvents, newEvent]);
   };
 
+  const customEventPropGetter = (event) => {
+    if (event.isDatePickerEvent) {
+      return {
+        style: {
+          backgroundColor: "blue",
+        },
+      };
+    }
+    return {};
+  };
+
   return (
     <div className="Calendar">
       <header>
@@ -41,13 +72,14 @@ export default function Sample() {
           <div style={{ height: "500px", margin: "20px 0" }}>
             <BigCalendar
               localizer={localizer}
-              events={[]}
+              events={datePickerEvents}
               startAccessor="start"
               endAccessor="end"
               defaultView="month"
               selectable={true}
               onSelectSlot={handleDateSelect}
               style={{ height: "100%" }}
+              eventPropGetter={customEventPropGetter}
             />
           </div>
           {dateRange && (
