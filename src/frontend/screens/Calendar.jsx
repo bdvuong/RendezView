@@ -6,7 +6,7 @@ import "../css/calendar.css";
 
 const localizer = momentLocalizer(moment);
 
-export default function Sample() {
+export default function Calendar() {
   const [dateRange, setDateRange] = useState(null);
   const [events, setEvents] = useState([]);
   const [currentView, setCurrentView] = useState("week");
