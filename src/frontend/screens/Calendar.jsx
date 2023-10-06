@@ -16,7 +16,7 @@ export default function Calendar() {
   useEffect(() => {
     if (dateRange) {
       const start = moment(dateRange.start);
-      const end = moment(dateRange.end).subtract(1, 'day'); // Subtracting one day here
+      const end = moment(dateRange.end).subtract(1, 'day'); 
       const days = [];
 
       while (start.isSameOrBefore(end)) {
@@ -25,7 +25,7 @@ export default function Calendar() {
           allDay: true,
           start: new Date(start),
           end: new Date(start),
-          isDatePickerEvent: true,  // Identify these events easily
+          isDatePickerEvent: true,
         });
         start.add(1, "day");
       }
@@ -33,12 +33,13 @@ export default function Calendar() {
     }
   }, [dateRange]);
 
-
   const handleDateSelect = ({ start, end }) => {
     setDateRange({ start, end });
     setEvents([]);
     setCurrentDate(start);
-    setCurrentView("week");
+
+    const daysDifference = moment(end).diff(moment(start), 'days');
+    setCurrentView(daysDifference > 1 ? "week" : "day");
   };
 
   const handleTimeSelect = ({ start, end }) => {
@@ -61,6 +62,14 @@ export default function Calendar() {
     return {};
   };
 
+  const customWeekDayFormat = (date, culture, localizer) => {
+    const formattedDate = localizer.format(date, 'dddd', culture);
+    if (date >= dateRange.start && date <= dateRange.end) {
+      return formattedDate;
+    }
+    return '';
+  };
+
   return (
     <div className="Calendar">
       <header>
@@ -68,7 +77,6 @@ export default function Calendar() {
       </header>
       <div className="Calendar__container">
         <main className="Calendar__container__content">
-          {/* Date Range Picker */}
           <div style={{ height: "500px", margin: "20px 0" }}>
             <BigCalendar
               localizer={localizer}
@@ -76,13 +84,12 @@ export default function Calendar() {
               startAccessor="start"
               endAccessor="end"
               defaultView="month"
-              views={["month"]} // Fix to month view only
+              views={["month"]}
               selectable={true}
               onSelectSlot={handleDateSelect}
               style={{ height: "100%" }}
               eventPropGetter={customEventPropGetter}
             />
-
           </div>
           {dateRange && (
             <div>
@@ -90,7 +97,6 @@ export default function Calendar() {
               <p>Selected End Date: {dateRange.end.toLocaleDateString()}</p>
             </div>
           )}
-          {/* Time Slot Picker */}
           {dateRange && (
             <div style={{ height: "500px", marginTop: "20px" }}>
               <BigCalendar
@@ -100,14 +106,12 @@ export default function Calendar() {
                 endAccessor="end"
                 date={currentDate}
                 view={currentView}
-                onView={setCurrentView}
-                onNavigate={setCurrentDate}
-                views={['week', 'day']}
+                views={['day', 'week']}
                 selectable={true}
                 onSelectSlot={handleTimeSelect}
                 style={{ height: "100%" }}
-                min={new Date(2022, 0, 1, 8, 0)} // 8.00 AM
-                max={new Date(2022, 0, 1, 20, 0)} // 8.00 PM
+                toolbar={false}
+                formats={{ dayFormat: customWeekDayFormat }}
               />
             </div>
           )}
