@@ -18,7 +18,7 @@ export default function Calendar() {
       const start = moment(dateRange.start);
       const end = moment(dateRange.end).subtract(1, 'day'); // Subtracting one day here
       const days = [];
-  
+
       while (start.isSameOrBefore(end)) {
         days.push({
           title: "",
@@ -32,7 +32,7 @@ export default function Calendar() {
       setDatePickerEvents(days);
     }
   }, [dateRange]);
-  
+
 
   const handleDateSelect = ({ start, end }) => {
     setDateRange({ start, end });
@@ -76,11 +76,13 @@ export default function Calendar() {
               startAccessor="start"
               endAccessor="end"
               defaultView="month"
+              views={["month"]} // Fix to month view only
               selectable={true}
               onSelectSlot={handleDateSelect}
               style={{ height: "100%" }}
               eventPropGetter={customEventPropGetter}
             />
+
           </div>
           {dateRange && (
             <div>
