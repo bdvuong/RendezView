@@ -78,6 +78,15 @@ export default function Calendar() {
     return '';
   };
 
+  const handleViewChange = (newView) => {
+    setCurrentView(newView);
+  };
+
+  const handleNavigate = (newDate) => {
+    setCurrentDate(newDate);
+  };
+  
+
 
   return (
     <div className="Calendar">
@@ -113,8 +122,10 @@ export default function Calendar() {
                 events={events}
                 startAccessor="start"
                 endAccessor="end"
-                date={currentView === "day" ? currentDate : moment(currentDate).add(daysDifference - 1, "days").toDate()}
+                date={currentDate}
+                onNavigate={handleNavigate}
                 view={currentView}
+                onView={handleViewChange}
                 views={['day', 'week']}
                 selectable={true}
                 onSelectSlot={handleTimeSelect}
