@@ -16,7 +16,7 @@ export default function Calendar() {
   useEffect(() => {
     if (dateRange) {
       const start = moment(dateRange.start);
-      const end = moment(dateRange.end).subtract(1, 'day'); 
+      const end = moment(dateRange.end).subtract(1, 'day');
       const days = [];
 
       while (start.isSameOrBefore(end)) {
@@ -40,6 +40,7 @@ export default function Calendar() {
 
     const daysDifference = moment(end).diff(moment(start), 'days');
     setCurrentView(daysDifference > 1 ? "week" : "day");
+
   };
 
   const handleTimeSelect = ({ start, end }) => {
@@ -64,11 +65,19 @@ export default function Calendar() {
 
   const customWeekDayFormat = (date, culture, localizer) => {
     const formattedDate = localizer.format(date, 'dddd', culture);
+
+    if (currentView === "day") {
+      return formattedDate; // Always show the full day name in 'day' view
+    }
+
+    // In 'week' view, only show day names within the selected range
     if (date >= dateRange.start && date <= dateRange.end) {
       return formattedDate;
     }
+
     return '';
   };
+
 
   return (
     <div className="Calendar">
@@ -104,7 +113,7 @@ export default function Calendar() {
                 events={events}
                 startAccessor="start"
                 endAccessor="end"
-                date={currentDate}
+                date={currentView === "day" ? currentDate : moment(currentDate).add(daysDifference - 1, "days").toDate()}
                 view={currentView}
                 views={['day', 'week']}
                 selectable={true}
